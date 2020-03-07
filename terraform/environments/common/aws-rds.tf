@@ -41,7 +41,6 @@ resource aws_security_group mysql {
   )
 }
 
-
 ##--------------------------------------------------------------
 ##  Parameter Group
 
@@ -85,7 +84,6 @@ resource aws_db_parameter_group mysql {
     local.tags, 
   )
 }
-
 
 ##--------------------------------------------------------------
 ##  MySQL
