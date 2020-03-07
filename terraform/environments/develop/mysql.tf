@@ -1,5 +1,5 @@
 resource mysql_database default {
-  count = local.ignore_when_local_stage
+  count = local.ignore_on_local_stage
 
   default_character_set = "utf8mb4"
   default_collation     = "utf8mb4_unicode_ci"
@@ -7,7 +7,7 @@ resource mysql_database default {
 }
 
 resource mysql_user default {
-  count = local.ignore_when_local_stage
+  count = local.ignore_on_local_stage
 
   user               = var.mysql_username
   host               = "%"
@@ -15,7 +15,7 @@ resource mysql_user default {
 }
 
 resource mysql_grant default {
-  count = local.ignore_when_local_stage
+  count = local.ignore_on_local_stage
 
   user       = mysql_user.default[count.index].user
   host       = mysql_user.default[count.index].host

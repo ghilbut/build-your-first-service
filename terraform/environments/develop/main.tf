@@ -44,7 +44,7 @@ provider mysql {
 
 
 locals {
-  ignore_when_local_stage = (terraform.workspace == "default" ? 0 : 1)
+  ignore_on_local_stage = (terraform.workspace == "default" ? 0 : 1)
 
   domain_name = data.terraform_remote_state.common.outputs.domain_name
 
