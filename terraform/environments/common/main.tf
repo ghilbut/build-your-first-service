@@ -2,7 +2,6 @@ terraform {
   required_version = "~> 0.12.6"
 
   backend s3 {
-    # s3://<bucket>/<workspace_key_prefix>/<workspace-name>/<key>
     bucket  = "byfs-terraform"
     key     = "terraform.tfstate"
 
@@ -19,3 +18,11 @@ provider aws {
   profile = var.aws_profile
 }
 
+
+locals {
+  tags = {
+    organization = var.organization
+    owner = "terraform"
+    "terraform:environment" = "common"
+  }
+}
