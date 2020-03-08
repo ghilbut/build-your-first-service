@@ -4,3 +4,5 @@ aws_profile = "byfs"
 organization = "platform"
 
 domain_name = "ghilbut.com"
+
+srv_name = "byfs"

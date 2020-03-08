@@ -20,6 +20,9 @@ provider aws {
 
 
 locals {
+  #az_suffixes = ["a", "b", "c"]
+  az_suffixes = ["a", "b"]
+
   tags = {
     organization = var.organization
     owner = "terraform"
