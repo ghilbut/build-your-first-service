@@ -11,8 +11,8 @@ resource mysql_user default {
 }
 
 resource mysql_grant default {
-  user       = mysql_user.default[count.index].user
-  host       = mysql_user.default[count.index].host
-  database   = mysql_database.default[count.index].name
+  user       = mysql_user.default.user
+  host       = mysql_user.default.host
+  database   = mysql_database.default.name
   privileges = ["ALL"]
 }
