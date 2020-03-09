@@ -1,6 +1,12 @@
 from byfs.settings.base import *
 
 
+ALLOWED_HOSTS = [
+  "localhost",
+  "byfs-dev.ghilbut.com",
+]
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',

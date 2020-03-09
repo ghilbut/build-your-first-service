@@ -14,3 +14,7 @@ variable organization {
 variable domain_name {
   type = string
 }
+
+variable srv_name {
+  type = string
+}

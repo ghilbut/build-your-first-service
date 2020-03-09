@@ -8,10 +8,6 @@
 ##  Security Group
 
 resource aws_security_group mysql {
-  depends_on = [
-    aws_iam_user_policy.all,
-  ]
-
   name = "byfs-mysql-develop"
   description = "Allow MySQL inbound traffic"
 
@@ -45,10 +41,6 @@ resource aws_security_group mysql {
 ##  Parameter Group
 
 resource aws_db_parameter_group mysql {
-  depends_on = [
-    aws_iam_user_policy.all,
-  ]
-
   name   = "byfs-mysql"
   family = "mysql5.7"
 
