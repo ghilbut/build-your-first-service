@@ -120,7 +120,3 @@ venv.bak/
 !**/migrations/__init__.py
 /db
 !/db/mysql/init
-
-# AWS ECS Fargate
-ecs/**/**.json.example
-
