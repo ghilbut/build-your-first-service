@@ -7,7 +7,10 @@ on:
       - Issue-*
     paths:
       - .github/workflows/deploy-dev-django.yml
-      - django/**
+      - django/Dockerfile
+      - django/Pipfile.lock
+      - django/ecs/dev/django-task-definition.json
+      - django/src/**
 
 jobs:
   deploy:
