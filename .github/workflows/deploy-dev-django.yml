@@ -62,36 +62,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Download math result for job 1
-      uses: actions/download-artifact@v1
-      with:
-        name: build
-    - name: Save docker image name and tag as variable
-      id: docker
-      run: echo ::set-output name=image::$(cat build/docker.txt)
+      - uses: actions/checkout@v1
 
-    - name: Checkout
-      run: docker pull ${{steps.docker.outputs.image}}
+      - name: Download math result for job 1
+        uses: actions/download-artifact@v1
+        with:
+          name: build
+      - name: Save docker image name and tag as variable
+        id: docker
+        run: echo ::set-output name=image::$(cat build/docker.txt)
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.BYFS_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.BYFS_AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.BYFS_AWS_REGION }}
+      - name: Checkout
+        run: docker pull ${{steps.docker.outputs.image}}
 
-    - name: Fill in the new image ID in the Amazon ECS task definition
-      id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: django/ecs/dev/django-task-definition.json
-        container-name: django
-        image: ${{steps.docker.outputs.image}}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.BYFS_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.BYFS_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.BYFS_AWS_REGION }}
 
-    - name: Deploy Amazon ECS task definition
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: byfs-dev-django
-        cluster: byfs
-        wait-for-service-stability: true
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: django/ecs/dev/django-task-definition.json
+          container-name: django
+          image: ${{steps.docker.outputs.image}}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: byfs-dev-django
+          cluster: byfs
+          wait-for-service-stability: true
