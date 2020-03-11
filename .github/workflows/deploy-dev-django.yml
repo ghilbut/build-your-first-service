@@ -1,4 +1,4 @@
-name: Deploy api backtend to develop stage
+name: Deploy django to develop stage
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
-        task-definition: django/ecs/dev/task-definition.json
+        task-definition: django/ecs/dev/django-task-definition.json
         container-name: django
         image: ghilbut/byfs:latest
 
