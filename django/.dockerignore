@@ -2,7 +2,6 @@
 .env
 .gitignore
 Dockerfile
-Pipfile
 db
 docker-compose.yml
 ecs
