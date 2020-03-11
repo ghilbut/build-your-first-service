@@ -1,3 +1,11 @@
+################################################################
+##
+##  common
+##
+
+##--------------------------------------------------------------
+##  cluster
+
 resource aws_ecs_cluster default {
   name               = "${local.srv_name}"
   capacity_providers = [
@@ -25,63 +33,99 @@ resource aws_ecs_cluster default {
 ##  django
 ##
 
+##--------------------------------------------------------------
+##  local variables
+
+locals {
+  family         = "${local.srv_name}-${local.stage}-django"
+  cpu            = "256"
+  memory         = "512"
+  execution_role = aws_iam_role.ecsTaskExecutionRole.arn
+
+  environment = [
+    {
+      "name": "DJANGO_SETTINGS_MODULE",
+      "value": "byfs.settings.${local.stage}"
+    }
+  ]
+
+  secrets = [
+    {
+      "name": "BYFS_${upper(local.stage)}_DB_HOST",
+      "valueFrom": aws_secretsmanager_secret.mysql_host.arn
+    },
+    {
+      "name": "BYFS_${upper(local.stage)}_DB_PORT",
+      "valueFrom": aws_secretsmanager_secret.mysql_port.arn
+    },
+    {
+      "name": "BYFS_${upper(local.stage)}_DB_NAME",
+      "valueFrom": aws_secretsmanager_secret.mysql_name.arn
+    },
+    {
+      "name": "BYFS_${upper(local.stage)}_DB_USER",
+      "valueFrom": aws_secretsmanager_secret.mysql_username.arn
+    },
+    {
+      "name": "BYFS_${upper(local.stage)}_DB_PASSWORD",
+      "valueFrom": aws_secretsmanager_secret.mysql_password.arn
+    }
+  ]
+}
+
+
+##--------------------------------------------------------------
+##  templates
+
+data template_file django_containers {
+  template = file("${path.module}/../../templates/ecs/django-container-definitions.json")
+
+  vars = {
+    name        = "django"
+    image       = "ghilbut/byfs:latest"
+    environment = jsonencode(local.environment)
+    secrets     = jsonencode(local.secrets)
+  }
+}
+
+
+data template_file django_task {
+  template = file("${path.module}/../../templates/ecs/django-task-definition.json")
+
+  vars = {
+    family         = local.family
+    execution_role = local.execution_role
+    containers     = data.template_file.django_containers.rendered
+    tags           = jsonencode(merge(
+      map(
+        "Name", "ecs-${local.srv_name}-${local.stage}-django-task-definition"
+      ),
+      local.tags
+    ))
+  }
+}
+
+resource local_file task_definition {
+  sensitive_content = data.template_file.django_task.rendered
+  filename = "${path.module}/../../../django/ecs/${local.stage}/django-task-definition.json.example"
+}
+
+
+##--------------------------------------------------------------
+##  task definition
+
 resource aws_ecs_task_definition django {
-  family                   = "ecs-${local.srv_name}-${local.stage}-django"
+  family                   = local.family
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecsTaskExecutionRole.arn
+  cpu                      = local.cpu
+  memory                   = local.memory
+  execution_role_arn       = local.execution_role
 
   # defined in role.tf
   #task_role_arn = aws_iam_role.app_role.arn
 
-  container_definitions    = <<EOF
-[
-  {
-    "name": "django",
-    "image": "ghilbut/byfs:latest",
-    "essential": true,
-    "portMappings": [
-      {
-        "protocol": "tcp",
-        "containerPort": 8000
-      }
-    ],
-    "entryPoint": [
-      "./manage.py",
-      "runserver",
-      "0:8000"
-    ],
-    "environment": [
-      {
-        "name": "BYFS_${upper(local.stage)}_DB_NAME",
-        "value": "${local.stage}"
-      },
-      {
-        "name": "BYFS_${upper(local.stage)}_DB_HOST",
-        "value": "${aws_route53_record.mysql.name}"
-      },
-      {
-        "name": "BYFS_${upper(local.stage)}_DB_PORT",
-        "value": "3306"
-      },
-      {
-        "name": "BYFS_${upper(local.stage)}_DB_USER",
-        "value": "${var.mysql_username}"
-      },
-      {
-        "name": "BYFS_${upper(local.stage)}_DB_PASSWORD",
-        "value": "${var.mysql_password}"
-      },
-      {
-        "name": "DJANGO_SETTINGS_MODULE",
-        "value": "byfs.settings.${local.stage}"
-      }
-    ]
-  }
-]
-EOF
+  container_definitions    = data.template_file.django_containers.rendered
 
   tags = merge(
     map(
@@ -91,6 +135,9 @@ EOF
   )
 }
 
+
+##--------------------------------------------------------------
+##  service
 
 resource aws_ecs_service django {
   depends_on = [
