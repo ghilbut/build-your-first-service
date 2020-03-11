@@ -64,9 +64,9 @@ jobs:
 
     steps:
     - name: Download math result for job 1
-        uses: actions/download-artifact@v1
-        with:
-          name: build
+      uses: actions/download-artifact@v1
+      with:
+        name: build
     - name: Save docker image name and tag as variable
       id: docker
       run: echo ::set-output name=image::$(cat build/docker.txt)
@@ -87,7 +87,7 @@ jobs:
       with:
         task-definition: django/ecs/dev/django-task-definition.json
         container-name: django
-        image: ghilbut/byfs:latest
+        image: ${{steps.docker.outputs.image}}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
