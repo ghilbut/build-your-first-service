@@ -54,11 +54,11 @@ jobs:
           name: build
           path: docker.txt
 
-  test:
-    needs: build
-    runs-on: ubuntu-latest
+  #test:
+  #  needs: build
+  #  runs-on: ubuntu-latest
 
-    steps:
+  #  steps:
 
   deploy:
     needs: build
