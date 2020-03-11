@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Make tag
         id: tag
-        run: echo ::set-output name=tag::$(date +'%Y%m%d-%H:%M:%S')
+        run: echo ::set-output name=tag::$(date +'%Y%m%d%H%M%S')
       - name: Get the version
         id: vars
         run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
