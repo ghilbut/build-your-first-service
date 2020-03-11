@@ -96,12 +96,16 @@ data template_file django_task {
     family         = local.family
     execution_role = local.execution_role
     containers     = data.template_file.django_containers.rendered
-    tags           = jsonencode(merge(
-      map(
-        "Name", "ecs-${local.srv_name}-${local.stage}-django-task-definition"
-      ),
-      local.tags
-    ))
+    tags           = jsonencode([for name, value in merge(
+        map(
+          "Name", "ecs-${local.srv_name}-${local.stage}-django-task-definition"
+        ),
+        local.tags
+      ): {
+        name = name
+        value = value
+      }
+    ])
   }
 }
 

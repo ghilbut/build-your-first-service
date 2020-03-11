@@ -53,12 +53,30 @@
   ],
   "cpu": "256",
   "memory": "512",
-  "tags": {
-    "Name": "ecs-byfs-dev-django-task-definition",
-    "organization": "platform",
-    "owner": "terraform",
-    "stage": "dev",
-    "terraform:environment": "develop",
-    "terraform:workspace": "dev"
-  }
+  "tags": [
+    {
+      "name": "Name",
+      "value": "ecs-byfs-dev-django-task-definition"
+    },
+    {
+      "name": "organization",
+      "value": "platform"
+    },
+    {
+      "name": "owner",
+      "value": "terraform"
+    },
+    {
+      "name": "stage",
+      "value": "dev"
+    },
+    {
+      "name": "terraform:environment",
+      "value": "develop"
+    },
+    {
+      "name": "terraform:workspace",
+      "value": "dev"
+    }
+  ]
 }
