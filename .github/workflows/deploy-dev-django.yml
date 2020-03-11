@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - Issue-*
     paths:
       - .github/workflows/deploy-dev-django.yml
       - django/Dockerfile
@@ -12,14 +13,66 @@ on:
       - django/src/**
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      WORKDIR: ./django
+      IMAGE_NAME: ghilbut/byfs
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Make tag
+        id: tag
+        run: echo ::set-output name=tag::$(date +'%Y%m%d-%H:%M:%S')
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+
+      - name: Build the tagged Docker image
+        run: |
+          docker build \
+                 -t ghilbut/byfs:${{steps.vars.outputs.tag}} \
+                 --label GITHUB_REF=${{GITHUB_REF}} \
+                 --label GITHUB_SHA=${{GITHUB_SHA}} \
+                 .
+        working-directory: ${{env.WORKDIR}}
+      - name: Push the tagged Docker image
+        run: docker push ghilbut/byfs:${{steps.vars.outputs.tag}}
+      - name: Tag the latest to current Docker image
+        run: docker image tag ghilbut/byfs:${{steps.vars.outputs.tag}} ghilbut/byfs:latest
+
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Push the latest Docker image
+        run: docker push ghilbut/byfs:latest
+
+      - name: Save docker image name and tag
+        run:  echo $IMAGE_NAME:${{steps.vars.outputs.tag}} > docker.txt
+      - name: Share image name and tag
+        uses: actions/upload-artifact@v1
+        with:
+          name: build
+          path: docker.txt
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
+    - name: Download math result for job 1
+        uses: actions/download-artifact@v1
+        with:
+          name: build
+    - name: Save docker image name and tag as variable
+      id: docker
+      run: echo ::set-output name=image::$(cat build/docker.txt)
+
     - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        ref: ${{ github.ref }}
+      run: docker pull ${{steps.docker.outputs.image}}
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
