@@ -22,21 +22,21 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Make docker image tag
-        id: tag
-        run: echo ::set-output name=value::$(date +'%Y%m%d%H%M%S')
+        id: docker
+        run: echo ::set-output name=image::${IMAGE_NAME}:$(date +'%Y%m%d%H%M%S')
 
       - name: Build the tagged Docker image
         run: |
           docker build \
-                 -t ghilbut/byfs:${{steps.tag.outputs.value}} \
+                 -t ${{steps.docker.outputs.image}} \
                  --label GITHUB_REF=${GITHUB_REF} \
                  --label GITHUB_SHA=${GITHUB_SHA} \
                  .
         working-directory: ${{env.WORKDIR}}
       - name: Push the tagged Docker image
-        run: docker push ghilbut/byfs:${{steps.tag.outputs.value}}
+        run: docker push ghilbut/byfs:${{steps.docker.outputs.image}}
       - name: Tag the latest to current Docker image
-        run: docker image tag ghilbut/byfs:${{steps.tag.outputs.value}} ghilbut/byfs:latest
+        run: docker image tag ghilbut/byfs:${{steps.docker.outputs.image}} ghilbut/byfs:latest
 
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
@@ -44,7 +44,7 @@ jobs:
         run: docker push ghilbut/byfs:latest
 
       - name: Save docker image name and tag
-        run:  echo $IMAGE_NAME:${{steps.tag.outputs.value}} > docker.txt
+        run:  echo $IMAGE_NAME:${{steps.docker.outputs.image}} > docker.txt
       - name: Share image name and tag
         uses: actions/upload-artifact@v1
         with:
