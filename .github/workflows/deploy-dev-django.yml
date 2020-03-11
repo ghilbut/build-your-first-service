@@ -32,19 +32,19 @@ jobs:
                  --label GITHUB_REF=${GITHUB_REF} \
                  --label GITHUB_SHA=${GITHUB_SHA} \
                  .
-        working-directory: ${{env.WORKDIR}}
+        working-directory: ${{ env.WORKDIR }}
       - name: Push the tagged Docker image
-        run: docker push ghilbut/byfs:${{steps.docker.outputs.image}}
+        run: docker push ${{ steps.docker.outputs.image }}
       - name: Tag the latest to current Docker image
-        run: docker image tag ghilbut/byfs:${{steps.docker.outputs.image}} ghilbut/byfs:latest
+        run: docker image tag ${{steps.docker.outputs.image}} ${{ env.IMAGE_NAME }}:latest
 
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Push the latest Docker image
-        run: docker push ghilbut/byfs:latest
+        run: docker push ${{ env.IMAGE_NAME }}:latest
 
       - name: Save docker image name and tag
-        run:  echo $IMAGE_NAME:${{steps.docker.outputs.image}} > docker.txt
+        run:  echo ${{ steps.docker.outputs.image }} > docker.txt
       - name: Share image name and tag
         uses: actions/upload-artifact@v1
         with:
