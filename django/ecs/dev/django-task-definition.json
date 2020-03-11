@@ -55,27 +55,27 @@
   "memory": "512",
   "tags": [
     {
-      "name": "Name",
+      "key": "Name",
       "value": "ecs-byfs-dev-django-task-definition"
     },
     {
-      "name": "organization",
+      "key": "organization",
       "value": "platform"
     },
     {
-      "name": "owner",
+      "key": "owner",
       "value": "terraform"
     },
     {
-      "name": "stage",
+      "key": "stage",
       "value": "dev"
     },
     {
-      "name": "terraform:environment",
+      "key": "terraform:environment",
       "value": "develop"
     },
     {
-      "name": "terraform:workspace",
+      "key": "terraform:workspace",
       "value": "dev"
     }
   ]

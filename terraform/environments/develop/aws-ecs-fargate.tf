@@ -102,7 +102,7 @@ data template_file django_task {
         ),
         local.tags
       ): {
-        name = name
+        key = name
         value = value
       }
     ])
