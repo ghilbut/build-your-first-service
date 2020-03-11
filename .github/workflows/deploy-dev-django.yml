@@ -32,8 +32,8 @@ jobs:
         run: |
           docker build \
                  -t ghilbut/byfs:${{steps.vars.outputs.tag}} \
-                 --label GITHUB_REF=${{GITHUB_REF}} \
-                 --label GITHUB_SHA=${{GITHUB_SHA}} \
+                 --label GITHUB_REF=${GITHUB_REF} \
+                 --label GITHUB_SHA=${GITHUB_SHA} \
                  .
         working-directory: ${{env.WORKDIR}}
       - name: Push the tagged Docker image
