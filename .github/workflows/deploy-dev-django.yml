@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - Issue-*
     paths:
       - .github/workflows/deploy-dev-django.yml
       - django/Dockerfile
