@@ -21,23 +21,50 @@ jobs:
       REMOTE_CONTAINER_NAME: ghilbut/byfs
 
     steps:
-      - run: curl -v -XDELETE https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@docker.pkg.github.com/v2/${{ github.repository }}/django/manifests/dev
-
       - uses: actions/checkout@v2
 
-      - name: Build the tagged Docker image
+      - name: Login to AWS ECR 
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Make docker image name and tag to publish
+        id: docker
+        run: |
+          echo ::set-output name=name::${RGISTRY}/${REPOSITORY}
+          echo ::set-output name=tag::dev-$(date +'%Y.%m.%d-%H.%M.%S')
+        with:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPOSITORY: byfs/django
+
+      - name: Build and push the tagged docker image
         run: |
           docker build \
-                 -t ${GITHUB_CONTAINER_IMAGE} \
+                 -t ${{ steps.docker.outputs.name }}:${{ steps.docker.outputs.tag }} \
                  --label GITHUB_REF=${GITHUB_REF} \
                  --label GITHUB_SHA=${GITHUB_SHA} \
                  .
+          docker push ${{ steps.docker.outputs.name }}:${{ steps.docker.outputs.tag }}
         working-directory: ${{ env.WORKDIR }}
 
-      - name: Login to push to github packages
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
-      - name: Push docker image to github packages
-        run: docker push ${GITHUB_CONTAINER_IMAGE}
+      - name: Logout AWS ECR
+        if: always()
+        run: docker logout ${{ steps.ecr.outputs.registry }}
+
+      - name: Save docker image name
+        run: echo ${{ steps.docker.outputs.name }} >> name
+      - name: Upload docker image name
+        uses: actions/upload-artifact@v1
+        with:
+          name: docker
+          path: name
+
+      - name: Save docker image tag
+        run: echo ${{ steps.docker.outputs.tag }} >> tag
+      - name: Upload docker image tag
+        uses: actions/upload-artifact@v1
+        with:
+          name: docker
+          path: tag
 
   deploy:
     needs:
@@ -50,26 +77,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Login to pull from github packages
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
-      - name: Pull docker image from github packages
-        run: docker pull ${GITHUB_CONTAINER_IMAGE}
-
-      - id: docker
-        name: Make docker image tag to publish to docker hub
-        run: echo ::set-output name=image::${REMOTE_CONTAINER_NAME}:dev-$(date +'%Y.%m.%d-%H.%M.%S')
-
-      - name: Tag with timestamp to current Docker image
-        run: docker image tag ${GITHUB_CONTAINER_IMAGE} ${{ steps.docker.outputs.image }}
-      - name: Tag the latest to current Docker image
-        run: docker image tag ${GITHUB_CONTAINER_IMAGE} ${REMOTE_CONTAINER_NAME}:latest
-
-      - name: Login to push to docker-hub registry
-        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: Push the tagged Docker image
-        run: docker push ${{ steps.docker.outputs.image }}
-      - name: Push the latest Docker image
-        run: docker push ${REMOTE_CONTAINER_NAME}:latest
+      - name: Download docker name
+        uses: actions/download-artifact@v1
+        with:
+          name: docker
+          path: name
+      - name: Download docker tag
+        uses: actions/download-artifact@v1
+        with:
+          name: docker
+          path: tag
+      - name: Get docker image name and tag to publish
+        id: docker
+        run: |
+          echo ::set-output name=name::$(cat docker/name)
+          echo ::set-output name=tag::$(cat docker/tag)
 
       - name: Checkout
         run: docker pull ${{ steps.docker.outputs.image }}
@@ -87,7 +109,7 @@ jobs:
         with:
           task-definition: django/ecs/dev/django-task-definition.json
           container-name: django
-          image: ${{ steps.docker.outputs.image }}
+          image: ${{ steps.docker.outputs.name }}:${{ steps.docker.outputs.tag }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -98,35 +120,18 @@ jobs:
           wait-for-service-stability: true
 
       - name: Login to AWS ECR 
-        id: login-ecr
+        id: ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Tag and push image to AWS ECR
+      - name: Tag latest and push image to AWS ECR
         run: |
-          docker image tag ${GITHUB_CONTAINER_IMAGE} ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest && \
-          docker push ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest
+          docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+          docker image tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+          docker push ${IMAGE_NAME}:latest
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: byfs
+          IMAGE_NAME: ${{ steps.docker.outputs.name }}
+          IMAGE_TAG: ${{ steps.docker.outputs.tag }}
 
       - name: Logout AWS ECR
         if: always()
-        run: docker logout ${{ steps.login-ecr.outputs.registry }}
-
-
-  #clean:
-  #  needs:
-  #    - build
-  #    - deploy
-  #  if: always()
-  #  runs-on: ubuntu-latest
-  #  env:
-  #    GITHUB_CONTAINER_IMAGE: docker.pkg.github.com/${{ github.repository }}/django:dev
-
-  #  steps:
-  #    - name: Login to pull from github packages
-  #      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
-  #    - name: Pull docker image from github packages
-  #      run: docker pull ${GITHUB_CONTAINER_IMAGE}
-
-
+        run: docker logout ${{ steps.ecr.outputs.registry }}
