@@ -56,20 +56,20 @@ jobs:
         run: docker logout ${{ steps.ecr.outputs.registry }}
 
       - name: Save docker image name
-        run: echo ${{ steps.docker.outputs.name }} >> name
+        run: echo ${{ steps.docker.outputs.name }} >> name.txt
       - name: Upload docker image name
         uses: actions/upload-artifact@v1
         with:
           name: docker_name
-          path: name
+          path: name.txt
 
       - name: Save docker image tag
-        run: echo ${{ steps.docker.outputs.tag }} >> tag
+        run: echo ${{ steps.docker.outputs.tag }} >> tag.txt
       - name: Upload docker image tag
         uses: actions/upload-artifact@v1
         with:
           name: docker_tag
-          path: tag
+          path: tag.txt
 
   deploy:
     needs:
@@ -83,17 +83,17 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: docker_name
-          path: name
+          path: name.txt
       - name: Download docker tag
         uses: actions/download-artifact@v1
         with:
           name: docker_tag
-          path: tag
+          path: tag.txt
       - name: Get docker image name and tag to publish
         id: docker
         run: |
-          echo ::set-output name=name::$(cat name)
-          echo ::set-output name=tag::$(cat tag)
+          echo ::set-output name=name::$(cat name.txt)
+          echo ::set-output name=tag::$(cat tag.txt)
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
