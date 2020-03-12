@@ -45,7 +45,7 @@ jobs:
       - name: Build the tagged Docker image
         run: |
           docker build \
-                 -t ${{steps.docker.outputs.image}} \
+                 -t ${{ steps.docker.outputs.image }} \
                  --label GITHUB_REF=${GITHUB_REF} \
                  --label GITHUB_SHA=${GITHUB_SHA} \
                  .
@@ -56,14 +56,14 @@ jobs:
       - name: Push the tagged Docker image
         run: docker push ${{ steps.docker.outputs.image }}
       - name: Tag the latest to current Docker image
-        run: docker image tag ${{steps.docker.outputs.image}} ${{ env.IMAGE_NAME }}:latest
+        run: docker image tag ${{ steps.docker.outputs.image }} ${{ env.IMAGE_NAME }}:latest
       - name: Push the latest Docker image
         run: docker push ${{ env.IMAGE_NAME }}:latest
 
       - name: Login to push to github packages
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
       - name: Tag docker image for github packages
-        run: docker image tag ${{steps.docker.outputs.image}} docker.pkg.github.com/${GITHUB_REPOSITORY}/django:latest
+        run: docker image tag ${{ steps.docker.outputs.image }} docker.pkg.github.com/${GITHUB_REPOSITORY}/django:latest
       - name: Push docker image to github packages
         run: docker push docker.pkg.github.com/${GITHUB_REPOSITORY}/django:latest
 
@@ -92,7 +92,7 @@ jobs:
         run: echo ::set-output name=image::$(cat build/docker.txt)
 
       - name: Checkout
-        run: docker pull ${{steps.docker.outputs.image}}
+        run: docker pull ${{ steps.docker.outputs.image }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -107,7 +107,7 @@ jobs:
         with:
           task-definition: django/ecs/dev/django-task-definition.json
           container-name: django
-          image: ${{steps.docker.outputs.image}}
+          image: ${{ steps.docker.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
