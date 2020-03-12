@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       WORKDIR: ./django
-      DOCKER_IMAGE: docker.pkg.github.com/${{ GITHUB_REPOSITORY }}/django:dev
+      DOCKER_IMAGE: docker.pkg.github.com/${{ env.GITHUB_REPOSITORY }}/django:dev
       IMAGE_NAME: ghilbut/byfs
 
     steps:
