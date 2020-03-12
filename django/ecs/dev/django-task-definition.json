@@ -15,7 +15,7 @@
     ],
     "entryPoint": ["./manage.py", "runserver", "0:8000"],
     "environment": [{"name":"DJANGO_SETTINGS_MODULE","value":"byfs.settings.dev"}],
-    "secrets": [{"name":"BYFS_DEV_DB_HOST","valueFrom":"arn:aws:secretsmanager:ap-northeast-2:869061964712:secret:byfs-dev-mysql-host-Fry2f5"},{"name":"BYFS_DEV_DB_PORT","valueFrom":"arn:aws:secretsmanager:ap-northeast-2:869061964712:secret:byfs-dev-mysql-port-pngtHC"},{"name":"BYFS_DEV_DB_NAME","valueFrom":"arn:aws:secretsmanager:ap-northeast-2:869061964712:secret:byfs-dev-mysql-name-6rFSRE"},{"name":"BYFS_DEV_DB_USER","valueFrom":"arn:aws:secretsmanager:ap-northeast-2:869061964712:secret:byfs-dev-mysql-username-FpvxwE"},{"name":"BYFS_DEV_DB_PASSWORD","valueFrom":"arn:aws:secretsmanager:ap-northeast-2:869061964712:secret:byfs-dev-mysql-password-BncGgB"}]
+    "secrets": [{"name":"BYFS_DEV_DB_HOST","valueFrom":"arn:aws:secretsmanager:ap-northeast-2:869061964712:secret:byfs-dev-mysql-host-z9pTEp"},{"name":"BYFS_DEV_DB_PORT","valueFrom":"arn:aws:secretsmanager:ap-northeast-2:869061964712:secret:byfs-dev-mysql-port-TdVPIs"},{"name":"BYFS_DEV_DB_NAME","valueFrom":"arn:aws:secretsmanager:ap-northeast-2:869061964712:secret:byfs-dev-mysql-name-z9pTEp"},{"name":"BYFS_DEV_DB_USER","valueFrom":"arn:aws:secretsmanager:ap-northeast-2:869061964712:secret:byfs-dev-mysql-username-j79MQo"},{"name":"BYFS_DEV_DB_PASSWORD","valueFrom":"arn:aws:secretsmanager:ap-northeast-2:869061964712:secret:byfs-dev-mysql-password-5SS5xK"}]
   }
 ]
 ,
