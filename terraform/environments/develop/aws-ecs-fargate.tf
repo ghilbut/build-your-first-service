@@ -82,7 +82,7 @@ data template_file django_containers {
 
   vars = {
     name        = "django"
-    image       = "ghilbut/byfs:latest"
+    image       = "${data.terraform_remote_state.common.outputs.ecr_django_url}:latest"
     environment = jsonencode(local.environment)
     secrets     = jsonencode(local.secrets)
   }

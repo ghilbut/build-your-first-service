@@ -23,3 +23,8 @@ output mysql_develop_password {
   description = "MySQL admin password for develop environment"
   sensitive   = true
 }
+
+output ecr_django_url {
+  value = aws_ecr_repository.django.repository_url
+  description = "url of docker registry for django on AWS ECR"
+}
