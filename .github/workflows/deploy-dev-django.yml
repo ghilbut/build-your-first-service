@@ -21,6 +21,8 @@ jobs:
       REMOTE_CONTAINER_NAME: ghilbut/byfs
 
     steps:
+      - run: curl -v -XDELETE https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }@docker.pkg.github.com/v2/${{ github.repository }}/django/manifests/dev
+
       - uses: actions/checkout@v2
 
       - name: Build the tagged Docker image
@@ -95,13 +97,11 @@ jobs:
           cluster: byfs
           wait-for-service-stability: true
 
-
-
-      - id: login-ecr
+      - id: Login AWS ECR
         name: Login to Amazon ECR 
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Tag and push image to AWS ECR
         run: |
           docker image tag ${GITHUB_CONTAINER_IMAGE} ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest && \
           docker push ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest
@@ -109,14 +109,24 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: byfs
 
-      - name: Build, tag, and push image to Amazon ECR
-        run: |
-          docker image tag ${GITHUB_CONTAINER_IMAGE} docker-byfs.ghilbut.com/${ECR_REPOSITORY}:latest && \
-          docker push docker-byfs.ghilbut.com/${ECR_REPOSITORY}:latest
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: byfs
-
-      - name: Logout of Amazon ECR
+      - name: Logout AWS ECR
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
+
+
+  #clean:
+  #  needs:
+  #    - build
+  #    - deploy
+  #  if: always()
+  #  runs-on: ubuntu-latest
+  #  env:
+  #    GITHUB_CONTAINER_IMAGE: docker.pkg.github.com/${{ github.repository }}/django:dev
+
+  #  steps:
+  #    - name: Login to pull from github packages
+  #      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
+  #    - name: Pull docker image from github packages
+  #      run: docker pull ${GITHUB_CONTAINER_IMAGE}
+
+
