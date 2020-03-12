@@ -1,5 +1,6 @@
 resource aws_secretsmanager_secret mysql_host {
   name = "byfs-${local.stage}-mysql-host"
+  recovery_window_in_days = 0
 }
 
 resource aws_secretsmanager_secret_version mysql_host {
@@ -10,6 +11,7 @@ resource aws_secretsmanager_secret_version mysql_host {
 
 resource aws_secretsmanager_secret mysql_name {
   name = "byfs-${local.stage}-mysql-name"
+  recovery_window_in_days = 0
 }
 
 resource aws_secretsmanager_secret_version mysql_name {
@@ -20,6 +22,7 @@ resource aws_secretsmanager_secret_version mysql_name {
 
 resource aws_secretsmanager_secret mysql_port {
   name = "byfs-${local.stage}-mysql-port"
+  recovery_window_in_days = 0
 }
 
 resource aws_secretsmanager_secret_version mysql_port {
@@ -30,6 +33,7 @@ resource aws_secretsmanager_secret_version mysql_port {
 
 resource aws_secretsmanager_secret mysql_username {
   name = "byfs-${local.stage}-mysql-username"
+  recovery_window_in_days = 0
 }
 
 resource aws_secretsmanager_secret_version mysql_username {
@@ -40,6 +44,7 @@ resource aws_secretsmanager_secret_version mysql_username {
 
 resource aws_secretsmanager_secret mysql_password {
   name = "byfs-${local.stage}-mysql-password"
+  recovery_window_in_days = 0
 }
 
 resource aws_secretsmanager_secret_version mysql_password {
