@@ -83,12 +83,10 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: docker_name
-          path: name.txt
       - name: Download docker tag
         uses: actions/download-artifact@v1
         with:
           name: docker_tag
-          path: tag.txt
       - name: Get docker image name and tag to publish
         id: docker
         run: |
