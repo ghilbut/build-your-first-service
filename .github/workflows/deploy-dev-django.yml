@@ -61,7 +61,7 @@ jobs:
         run: docker push ${{ env.IMAGE_NAME }}:latest
 
       - name: Login to push to github packages
-        run: docker login -u ${GITHUB_ACTOR} -p ${GITHUB_TOKEN} docker.pkg.github.com
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
       - name: Tag docker image for github packages
         run: docker image tag ${{steps.docker.outputs.image}} docker.pkg.github.com/${GITHUB_REPOSITORY}/django:latest
       - name: Push docker image to github packages
