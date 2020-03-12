@@ -60,16 +60,16 @@ jobs:
       - name: Upload docker image name
         uses: actions/upload-artifact@v1
         with:
-          name: docker
-          path: name
+          path: docker
+          name: name
 
       - name: Save docker image tag
         run: echo ${{ steps.docker.outputs.tag }} >> tag
       - name: Upload docker image tag
         uses: actions/upload-artifact@v1
         with:
-          name: docker
-          path: tag
+          path: docker
+          name: tag
 
   deploy:
     needs:
@@ -82,13 +82,13 @@ jobs:
       - name: Download docker name
         uses: actions/download-artifact@v1
         with:
-          name: docker
-          path: name
+          path: docker
+          name: name
       - name: Download docker tag
         uses: actions/download-artifact@v1
         with:
-          name: docker
-          path: tag
+          path: docker
+          name: tag
       - name: Get docker image name and tag to publish
         id: docker
         run: |
