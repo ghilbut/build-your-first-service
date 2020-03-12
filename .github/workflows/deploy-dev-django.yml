@@ -70,7 +70,7 @@ jobs:
 
       - id: docker
         name: Make docker image tag to publish to docker hub
-        run: echo ::set-output name=image::${REMOTE_CONTAINER_NAME}:$(date +'%Y%m%d%H%M%S')
+        run: echo ::set-output name=image::${REMOTE_CONTAINER_NAME}:dev-$(date +'%Y.%m.%d-%H.%M.%S')
 
       - name: Tag with timestamp to current Docker image
         run: docker image tag ${GITHUB_CONTAINER_IMAGE} ${{ steps.docker.outputs.image }}
