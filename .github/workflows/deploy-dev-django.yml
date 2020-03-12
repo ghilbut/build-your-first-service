@@ -23,6 +23,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.BYFS_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.BYFS_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.BYFS_AWS_REGION }}
+
       - name: Login to AWS ECR 
         id: ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -92,9 +99,6 @@ jobs:
         run: |
           echo ::set-output name=name::$(cat docker/name)
           echo ::set-output name=tag::$(cat docker/tag)
-
-      - name: Checkout
-        run: docker pull ${{ steps.docker.outputs.image }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
