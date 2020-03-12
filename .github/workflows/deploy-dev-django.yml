@@ -97,8 +97,8 @@ jobs:
           cluster: byfs
           wait-for-service-stability: true
 
-      - id: Login AWS ECR
-        name: Login to Amazon ECR 
+      - name: Login to AWS ECR 
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Tag and push image to AWS ECR
