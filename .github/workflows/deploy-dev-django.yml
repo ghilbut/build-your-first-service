@@ -14,13 +14,11 @@ on:
 
 jobs:
   build:
-    #needs: 
-    #  - test
     runs-on: ubuntu-latest
     env:
       WORKDIR: ./django
-      DOCKER_IMAGE: docker.pkg.github.com/${{ github.repository }}/django:dev
-      IMAGE_NAME: ghilbut/byfs
+      GITHUB_CONTAINER_IMAGE: docker.pkg.github.com/${{ github.repository }}/django:dev
+      REMOTE_CONTAINER_NAME: ghilbut/byfs
 
     steps:
       - uses: actions/checkout@v2
@@ -28,7 +26,7 @@ jobs:
       - name: Build the tagged Docker image
         run: |
           docker build \
-                 -t ${DOCKER_IMAGE} \
+                 -t ${GITHUB_CONTAINER_IMAGE} \
                  --label GITHUB_REF=${GITHUB_REF} \
                  --label GITHUB_SHA=${GITHUB_SHA} \
                  .
@@ -37,7 +35,7 @@ jobs:
       - name: Login to push to github packages
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
       - name: Push docker image to github packages
-        run: docker push ${DOCKER_IMAGE}
+        run: docker push ${GITHUB_CONTAINER_IMAGE}
 
   #test:
   #  runs-on: ubuntu-latest
@@ -58,6 +56,9 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
+    env:
+      GITHUB_CONTAINER_IMAGE: docker.pkg.github.com/${{ github.repository }}/django:dev
+      REMOTE_CONTAINER_NAME: ghilbut/byfs
 
     steps:
       - uses: actions/checkout@v2
@@ -65,21 +66,21 @@ jobs:
       - name: Login to pull from github packages
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${GITHUB_ACTOR} --password-stdin docker.pkg.github.com
       - name: Pull docker image from github packages
-        run: docker pull ${DOCKER_IMAGE}
+        run: docker pull ${GITHUB_CONTAINER_IMAGE}
 
       - id: docker
         name: Make docker image tag to publish to docker hub
-        run: echo ::set-output name=image::${IMAGE_NAME}:$(date +'%Y%m%d%H%M%S')
+        run: echo ::set-output name=image::${REMOTE_CONTAINER_NAME}:$(date +'%Y%m%d%H%M%S')
 
       - name: Tag the latest to current Docker image
-        run: docker image tag ${DOCKER_IMAGE} ${{ steps.docker.outputs.image }}
+        run: docker image tag ${GITHUB_CONTAINER_IMAGE} ${{ steps.docker.outputs.image }}
 
       - name: Login to push to docker-hub registry
         run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
       - name: Push the tagged Docker image
         run: docker push ${{ steps.docker.outputs.image }}
       - name: Push the latest Docker image
-        run: docker push ${IMAGE_NAME}:latest
+        run: docker push ${REMOTE_CONTAINER_NAME}:latest
 
       - name: Checkout
         run: docker pull ${{ steps.docker.outputs.image }}
