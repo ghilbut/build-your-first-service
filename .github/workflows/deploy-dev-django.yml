@@ -21,7 +21,7 @@ jobs:
       REMOTE_CONTAINER_NAME: ghilbut/byfs
 
     steps:
-      - run: curl -v -XDELETE https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }@docker.pkg.github.com/v2/${{ github.repository }}/django/manifests/dev
+      - run: curl -v -XDELETE https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@docker.pkg.github.com/v2/${{ github.repository }}/django/manifests/dev
 
       - uses: actions/checkout@v2
 
