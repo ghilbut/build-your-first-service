@@ -1,5 +1,5 @@
-resource aws_ecr_repository default {
-  name                 = "${var.srv_name}"
+resource aws_ecr_repository django {
+  name = "django"
 
   image_scanning_configuration {
     scan_on_push = true
@@ -7,7 +7,7 @@ resource aws_ecr_repository default {
 
   tags = merge(
     map(
-      "Name", "ecr-${var.srv_name}"
+      "Name", "ecr-${var.srv_name}-django"
     ),
     local.tags
   )
