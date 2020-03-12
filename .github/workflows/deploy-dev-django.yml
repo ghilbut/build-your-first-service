@@ -32,7 +32,7 @@ jobs:
         run: |
           echo ::set-output name=name::${RGISTRY}/${REPOSITORY}
           echo ::set-output name=tag::dev-$(date +'%Y.%m.%d-%H.%M.%S')
-        with:
+        env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
           REPOSITORY: byfs/django
 
