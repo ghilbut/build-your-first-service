@@ -109,6 +109,14 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: byfs
 
+      - name: Build, tag, and push image to Amazon ECR
+        run: |
+          docker image tag ${GITHUB_CONTAINER_IMAGE} docker-byfs.ghilbut.com/${ECR_REPOSITORY}:latest && \
+          docker push docker-byfs.ghilbut.com/${ECR_REPOSITORY}:latest
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: byfs
+
       - name: Logout of Amazon ECR
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
