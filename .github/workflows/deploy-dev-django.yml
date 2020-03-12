@@ -37,7 +37,7 @@ jobs:
       - name: Make docker image name and tag to publish
         id: docker
         run: |
-          echo ::set-output name=name::${RGISTRY}/${REPOSITORY}
+          echo ::set-output name=name::${REGISTRY}/${REPOSITORY}
           echo ::set-output name=tag::dev-$(date +'%Y.%m.%d-%H.%M.%S')
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
