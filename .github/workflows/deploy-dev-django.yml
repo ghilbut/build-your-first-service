@@ -17,8 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       WORKDIR: ./django
-      GITHUB_CONTAINER_IMAGE: docker.pkg.github.com/${{ github.repository }}/django:dev
-      REMOTE_CONTAINER_NAME: ghilbut/byfs
 
     steps:
       - uses: actions/checkout@v2
@@ -41,7 +39,7 @@ jobs:
           echo ::set-output name=tag::dev-$(date +'%Y.%m.%d-%H.%M.%S')
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
-          REPOSITORY: byfs/django
+          REPOSITORY: django
 
       - name: Build and push the tagged docker image
         run: |
@@ -77,9 +75,6 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    env:
-      GITHUB_CONTAINER_IMAGE: docker.pkg.github.com/${{ github.repository }}/django:dev
-      REMOTE_CONTAINER_NAME: ghilbut/byfs
 
     steps:
       - uses: actions/checkout@v2
