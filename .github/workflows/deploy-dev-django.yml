@@ -13,14 +13,31 @@ on:
       - django/src/**
 
 jobs:
+  #test:
+  #  runs-on: ubuntu-latest
+
+  #  steps:
+  #    - uses: actions/checkout@v2
+  #    - name: Set up Python 3.8
+  #      uses: actions/setup-python@v1
+  #      with:
+  #        python-version: 3.8
+  #    - name: Install dependencies
+  #      run: |
+  #        sudo apt-get install libmariadb-dev \
+  #        && pipenv install --system --deploy --clear
+
+
   build:
+    #needs: 
+    #  - test
     runs-on: ubuntu-latest
     env:
       WORKDIR: ./django
       IMAGE_NAME: ghilbut/byfs
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Make docker image tag
         id: docker
         run: echo ::set-output name=image::${IMAGE_NAME}:$(date +'%Y%m%d%H%M%S')
@@ -51,20 +68,13 @@ jobs:
           name: build
           path: docker.txt
 
-  #test:
-  #  needs: build
-  #  runs-on: ubuntu-latest
-
-  #  steps:
-
   deploy:
     needs:
       - build
-      #- test
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
       - name: Download math result for job 1
         uses: actions/download-artifact@v1
