@@ -111,7 +111,7 @@ data template_file django_task {
 
 resource local_file task_definition {
   sensitive_content = data.template_file.django_task.rendered
-  filename = "${path.module}/../../../django/ecs/${local.stage}/django-task-definition.json.example"
+  filename = "${path.module}/../../../django/ecs/${local.stage}/django-task-definition.json"
 }
 
 
