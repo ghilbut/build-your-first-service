@@ -63,7 +63,7 @@ jobs:
       - name: Tag docker image for github packages
         run: docker image tag ${{steps.docker.outputs.image}} ${{ env.IMAGE_NAME }}:latest  docker.pkg.github.com/${GITHUB_REPOSITORY}/django:latest
       - name: Push docker image to github packages
-        run: docker.pkg.github.com/${GITHUB_REPOSITORY}/django:latest
+        run: docker push docker.pkg.github.com/${GITHUB_REPOSITORY}/django:latest
 
       - name: Save docker image name and tag for next jobs
         run:  echo ${{ steps.docker.outputs.image }} > docker.txt
