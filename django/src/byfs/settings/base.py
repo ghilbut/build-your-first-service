@@ -128,8 +128,8 @@ LOGGING = {
     'formatters': {
         'aws': {
             'format': u"%(asctime)s [%(levelname)s] %(message)s",
-            #'datefmt': "%Y-%m-%d %H:%M:%S",
-            'datefmt': "%d/%b/%Y %H:%M:%S",
+            'datefmt': "%Y-%m-%d %H:%M:%S",
+            #'datefmt': "%d/%b/%Y %H:%M:%S",
         },
     },
     'handlers': {
