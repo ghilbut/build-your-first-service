@@ -11,6 +11,7 @@
     ],
     "entryPoint": ["./manage.py", "runserver", "0:8000"],
     "environment": ${environment},
-    "secrets": ${secrets}
+    "secrets": ${secrets},
+    "logConfiguration": ${log_config}
   }
 ]
