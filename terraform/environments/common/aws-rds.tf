@@ -81,7 +81,9 @@ resource aws_db_parameter_group mysql {
 ##  MySQL
 
 resource random_string mysql_develop_username {
-  length = 8
+  length  = 8
+  upper   = false
+  number  = false
   special = false
 }
 
