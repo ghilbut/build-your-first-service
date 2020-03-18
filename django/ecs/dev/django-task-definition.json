@@ -22,7 +22,7 @@
     "awslogs-region": "ap-northeast-2",
     "awslogs-group": "byfs-dev-django",
     "awslogs-stream-prefix": "byfs",
-    "awslogs-datetime-format": "[%d/%b/%Y %H:%M:%S]"
+    "awslogs-datetime-format": "[%Y-%m-%d %H:%M:%S]"
   }
 }
 
