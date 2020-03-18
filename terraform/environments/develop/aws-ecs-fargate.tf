@@ -92,7 +92,7 @@ data template_file django_containers {
     "awslogs-region": "${var.aws_region}",
     "awslogs-group": "${local.srv_name}-${local.stage}-django",
     "awslogs-stream-prefix": "${local.srv_name}",
-    "awslogs-datetime-format": "[%d/%b/%Y %H:%M:%S]"
+    "awslogs-datetime-format": "\\[%Y-%m-%d %H:%M:%S\\]"
   }
 }
 EOF
