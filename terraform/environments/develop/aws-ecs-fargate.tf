@@ -154,17 +154,19 @@ resource aws_ecs_service django {
     ]
   }
 
-  name            = "${local.srv_name}-${local.stage}-django"
-  cluster         = aws_ecs_cluster.default.id
-  launch_type     = "FARGATE"
-  task_definition = aws_ecs_task_definition.django.arn
-  desired_count   = 1
+  name                               = "${local.srv_name}-${local.stage}-django"
+  cluster                            = aws_ecs_cluster.default.id
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
+  launch_type                        = "FARGATE"
+  task_definition                    = aws_ecs_task_definition.django.arn
+  desired_count                      = 1
 
   network_configuration {
     subnets          = [data.aws_subnet.default.id]
     security_groups  = [data.aws_security_group.private.id]
 
-    # if you has NAT, set to false
+    # if you have NAT, set to false
     assign_public_ip = true
   }
 
