@@ -85,6 +85,17 @@ data template_file django_containers {
     image       = "${data.terraform_remote_state.common.outputs.ecr_django_url}:latest"
     environment = jsonencode(local.environment)
     secrets     = jsonencode(local.secrets)
+    log_config  =<<EOF
+{
+  "logDriver": "awslogs",
+  "options": {
+    "awslogs-region": "${var.aws_region}",
+    "awslogs-group": "${local.srv_name}-${local.stage}-django",
+    "awslogs-stream-prefix": "${local.srv_name}",
+    "awslogs-datetime-format": "\\[%Y-%m-%d %H:%M:%S\\]"
+  }
+}
+EOF
   }
 }
 
