@@ -1,10 +1,4 @@
-from byfs.settings.base import *
-
-
-ALLOWED_HOSTS = [
-  "localhost",
-  "byfs-dev.ghilbut.com",
-]
+from byfs.settings.local import *
 
 
 DATABASES = {

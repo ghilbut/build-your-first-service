@@ -19,9 +19,9 @@
     "logConfiguration": {
   "logDriver": "awslogs",
   "options": {
-    "awslogs-region": "ap-northeast-2",
-    "awslogs-group": "byfs-dev-django",
-    "awslogs-stream-prefix": "byfs",
+    "awslogs-region":          "ap-northeast-2",
+    "awslogs-group":           "byfs-dev-django",
+    "awslogs-stream-prefix":   "byfs",
     "awslogs-datetime-format": "\\[%Y-%m-%d %H:%M:%S\\]"
   }
 }
