@@ -1,36 +1,25 @@
 ################################################################
 ##
-##  common
+##  AWS Route53
 ##
 
-##--------------------------------------------------------------
-##  cluster
+resource aws_route53_record django {
+  zone_id = data.aws_route53_zone.private.zone_id
+  name    = "${local.srv_name}-${local.stage}.${local.domain_name}"
+  type    = "A"
 
-resource aws_ecs_cluster default {
-  name               = "${local.srv_name}"
-  capacity_providers = [
-    "FARGATE",
-    "FARGATE_SPOT",
-  ]
-
-  setting {
-    name  = "containerInsights"
-    value = "enabled"
-    #value = "disabled"
+  alias {
+    name    = data.aws_lb.alb_private.dns_name
+    zone_id = data.aws_lb.alb_private.zone_id
+    evaluate_target_health = true
   }
-
-  tags = merge(
-    map(
-      "Name", "ecs-${local.srv_name}-django"
-    ),
-    local.tags
-  )
 }
+
 
 
 ################################################################
 ##
-##  django
+##  AWS ECS Fargate
 ##
 
 ##--------------------------------------------------------------
@@ -152,42 +141,28 @@ resource aws_ecs_task_definition django {
 
 
 ##--------------------------------------------------------------
-##  service
+##  module:django
+##  * application load balancer
+##  * auto scaling
+##  * ecs service
+##  * route53
 
-resource aws_ecs_service django {
-  depends_on = [
-    aws_lb_listener.django,
-  ]
+module django {
+  source = "../../modules/aws-ecs-service"
 
-  lifecycle {
-    ignore_changes = [
-      task_definition,
-    ]
-  }
+  prefix              = "${local.srv_name}-${local.stage}-django"
 
-  name                               = "${local.srv_name}-${local.stage}-django"
-  cluster                            = aws_ecs_cluster.default.id
-  deployment_maximum_percent         = 200
-  deployment_minimum_healthy_percent = 100
-  launch_type                        = "FARGATE"
-  task_definition                    = aws_ecs_task_definition.django.arn
-  desired_count                      = 1
+  vpc_id              = data.aws_vpc.default.id
+  subnet_ids          = [data.aws_subnet.default.id]
+  security_group_ids  = [data.aws_security_group.private.id]
 
-  network_configuration {
-    subnets          = [data.aws_subnet.default.id]
-    security_groups  = [data.aws_security_group.private.id]
+  alb_name            = "alb-${local.srv_name}-private"
+  alb_listener_arn    = data.aws_lb_listener.http_private.arn
+  alb_route_host      = aws_route53_record.django.name
+  alb_route_priority  = 100
 
-    # if you have NAT, set to false
-    assign_public_ip = true
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.django.id
-    container_name   = "django"
-    container_port   = 8000
-  }
-
-  deployment_controller {
-    type = "ECS"
-  }
+  cluster_name        = data.aws_ecs_cluster.private.cluster_name
+  task_definition_arn = aws_ecs_task_definition.django.arn
+  container_name      = "django"
+  container_port      = 8000
 }

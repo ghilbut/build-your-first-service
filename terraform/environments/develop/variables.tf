@@ -9,11 +9,3 @@ variable aws_profile {
 variable organization {
   type = "string"
 }
-
-variable mysql_username {
-  type = "string"
-}
-
-variable mysql_password {
-  type = "string"
-}

@@ -32,3 +32,20 @@ resource aws_lb alb_private {
     local.tags, 
   )
 }
+
+
+resource aws_lb_listener http_private {
+  load_balancer_arn = aws_lb.alb_private.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Application Load Balancer default response"
+      status_code  = "200"
+    }
+  }
+}
