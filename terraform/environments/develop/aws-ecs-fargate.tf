@@ -15,8 +15,8 @@ resource aws_ecs_cluster default {
 
   setting {
     name  = "containerInsights"
-    #value = "enabled"
-    value = "disabled"
+    value = "enabled"
+    #value = "disabled"
   }
 
   tags = merge(
