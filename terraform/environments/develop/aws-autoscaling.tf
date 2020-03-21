@@ -43,7 +43,7 @@ resource aws_cloudwatch_metric_alarm cpu_utilization_high {
   namespace           = "AWS/ECS"
   period              = "60"
   statistic           = "Average"
-  threshold           = 20  # percent
+  threshold           = 80  # percent
 
   dimensions = {
     ClusterName = aws_ecs_cluster.default.name
@@ -87,7 +87,7 @@ resource aws_cloudwatch_metric_alarm cpu_utilization_low {
   namespace           = "AWS/ECS"
   period              = "60"
   statistic           = "Average"
-  threshold           = 10  # percent
+  threshold           = 30  # percent
 
   dimensions = {
     ClusterName = aws_ecs_cluster.default.name
