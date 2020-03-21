@@ -17,7 +17,7 @@ resource aws_appautoscaling_target scale_target {
 ##  Scale Out
 
 resource aws_appautoscaling_policy scale_out {
-  name               = "app-scale-out"
+  name               = "scale-out"
   resource_id        = aws_appautoscaling_target.scale_target.resource_id
   scalable_dimension = aws_appautoscaling_target.scale_target.scalable_dimension
   service_namespace  = aws_appautoscaling_target.scale_target.service_namespace
@@ -36,7 +36,7 @@ resource aws_appautoscaling_policy scale_out {
 
 
 resource aws_cloudwatch_metric_alarm cpu_utilization_high {
-  alarm_name          = "${local.srv_name}-${local.stage}-django-CPU-Utilization-High"
+  alarm_name          = "${local.srv_name}-${local.stage}-django-CPU-high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
@@ -61,7 +61,7 @@ resource aws_cloudwatch_metric_alarm cpu_utilization_high {
 ##  Scale In
 
 resource aws_appautoscaling_policy scale_in {
-  name               = "app-scale-in"
+  name               = "scale-in"
   resource_id        = aws_appautoscaling_target.scale_target.resource_id
   scalable_dimension = aws_appautoscaling_target.scale_target.scalable_dimension
   service_namespace  = aws_appautoscaling_target.scale_target.service_namespace
@@ -80,7 +80,7 @@ resource aws_appautoscaling_policy scale_in {
 
 
 resource aws_cloudwatch_metric_alarm cpu_utilization_low {
-  alarm_name          = "${local.srv_name}-${local.stage}-django-CPU-Utilization-Low"
+  alarm_name          = "${local.srv_name}-${local.stage}-django-CPU-low"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
