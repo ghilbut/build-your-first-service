@@ -1,36 +1,105 @@
 ################################################################
 ##
-##  common
+##  AWS CloudWatch
 ##
 
-##--------------------------------------------------------------
-##  cluster
-
-resource aws_ecs_cluster default {
-  name               = "${local.srv_name}"
-  capacity_providers = [
-    "FARGATE",
-    "FARGATE_SPOT",
-  ]
-
-  setting {
-    name  = "containerInsights"
-    value = "enabled"
-    #value = "disabled"
-  }
+resource aws_cloudwatch_log_group django {
+  name              = "${local.srv_name}-${local.stage}-django"
+  retention_in_days = 1
 
   tags = merge(
     map(
-      "Name", "ecs-${local.srv_name}-django"
+      "Name", "${local.srv_name}-${local.stage}-django",
     ),
     local.tags
   )
 }
 
 
+
 ################################################################
 ##
-##  django
+##  AWS IAM
+##
+
+data aws_iam_policy_document assume_role_policy {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
+
+resource aws_iam_role ecsTaskExecutionRole {
+  name               = "iam-role-byfs-ecs-execution"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+}
+
+
+resource aws_iam_role_policy_attachment ecsTaskExecutionRole_policy {
+  role       = aws_iam_role.ecsTaskExecutionRole.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+
+# https://aws.amazon.com/ko/premiumsupport/knowledge-center/ecs-data-security-container-task/
+resource aws_iam_policy secret_access_policy {
+  name        = "test-policy"
+  description = "A test policy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameters",
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": [
+        "arn:aws:ssm:ap-northeast-2:*:parameter/*",
+        "arn:aws:secretsmanager:ap-northeast-2:*:secret:*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource aws_iam_role_policy_attachment secrets {
+  role       = aws_iam_role.ecsTaskExecutionRole.name
+  policy_arn = aws_iam_policy.secret_access_policy.arn
+}
+
+
+
+################################################################
+##
+##  AWS Route53
+##
+
+resource aws_route53_record django {
+  zone_id = data.aws_route53_zone.private.zone_id
+  name    = "${local.srv_name}-${local.stage}.${local.domain_name}"
+  type    = "A"
+
+  alias {
+    name    = data.aws_lb.alb_private.dns_name
+    zone_id = data.aws_lb.alb_private.zone_id
+    evaluate_target_health = true
+  }
+}
+
+
+
+################################################################
+##
+##  AWS ECS Fargate
 ##
 
 ##--------------------------------------------------------------
@@ -89,9 +158,9 @@ data template_file django_containers {
 {
   "logDriver": "awslogs",
   "options": {
-    "awslogs-region": "${var.aws_region}",
-    "awslogs-group": "${local.srv_name}-${local.stage}-django",
-    "awslogs-stream-prefix": "${local.srv_name}",
+    "awslogs-region":          "${var.aws_region}",
+    "awslogs-group":           "${aws_cloudwatch_log_group.django.name}",
+    "awslogs-stream-prefix":   "${local.srv_name}",
     "awslogs-datetime-format": "\\[%Y-%m-%d %H:%M:%S\\]"
   }
 }
@@ -152,42 +221,28 @@ resource aws_ecs_task_definition django {
 
 
 ##--------------------------------------------------------------
-##  service
+##  module:django
+##  * application load balancer
+##  * auto scaling
+##  * ecs service
+##  * route53
 
-resource aws_ecs_service django {
-  depends_on = [
-    aws_lb_listener.django,
-  ]
+module django {
+  source = "../../modules/aws-ecs-service"
 
-  lifecycle {
-    ignore_changes = [
-      task_definition,
-    ]
-  }
+  prefix              = "${local.srv_name}-${local.stage}-django"
 
-  name                               = "${local.srv_name}-${local.stage}-django"
-  cluster                            = aws_ecs_cluster.default.id
-  deployment_maximum_percent         = 200
-  deployment_minimum_healthy_percent = 100
-  launch_type                        = "FARGATE"
-  task_definition                    = aws_ecs_task_definition.django.arn
-  desired_count                      = 1
+  vpc_id              = data.aws_vpc.default.id
+  subnet_ids          = [data.aws_subnet.default.id]
+  security_group_ids  = [data.aws_security_group.private.id]
 
-  network_configuration {
-    subnets          = [data.aws_subnet.default.id]
-    security_groups  = [data.aws_security_group.private.id]
+  alb_name            = "alb-${local.srv_name}-private"
+  alb_listener_arn    = data.aws_lb_listener.http_private.arn
+  alb_route_host      = aws_route53_record.django.name
+  alb_route_priority  = 100
 
-    # if you have NAT, set to false
-    assign_public_ip = true
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.django.id
-    container_name   = "django"
-    container_port   = 8000
-  }
-
-  deployment_controller {
-    type = "ECS"
-  }
+  cluster_name        = data.aws_ecs_cluster.private.cluster_name
+  task_definition_arn = aws_ecs_task_definition.django.arn
+  container_name      = "django"
+  container_port      = 8000
 }

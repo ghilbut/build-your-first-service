@@ -5,7 +5,7 @@
 
 resource aws_appautoscaling_target scale_target {
   service_namespace  = "ecs"
-  resource_id        = "service/${aws_ecs_cluster.default.name}/${aws_ecs_service.django.name}"
+  resource_id        = "service/${var.cluster_name}/${aws_ecs_service.django.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   max_capacity       = 4
   min_capacity       = 1
@@ -36,7 +36,7 @@ resource aws_appautoscaling_policy scale_out {
 
 
 resource aws_cloudwatch_metric_alarm cpu_utilization_high {
-  alarm_name          = "${local.srv_name}-${local.stage}-django-CPU-high"
+  alarm_name          = "${var.prefix}-CPU-high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
@@ -46,7 +46,7 @@ resource aws_cloudwatch_metric_alarm cpu_utilization_high {
   threshold           = 80  # percent
 
   dimensions = {
-    ClusterName = aws_ecs_cluster.default.name
+    ClusterName = var.cluster_name
     ServiceName = aws_ecs_service.django.name
   }
 
@@ -80,7 +80,7 @@ resource aws_appautoscaling_policy scale_in {
 
 
 resource aws_cloudwatch_metric_alarm cpu_utilization_low {
-  alarm_name          = "${local.srv_name}-${local.stage}-django-CPU-low"
+  alarm_name          = "${var.prefix}-CPU-low"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
@@ -90,7 +90,7 @@ resource aws_cloudwatch_metric_alarm cpu_utilization_low {
   threshold           = 30  # percent
 
   dimensions = {
-    ClusterName = aws_ecs_cluster.default.name
+    ClusterName = var.cluster_name
     ServiceName = aws_ecs_service.django.name
   }
 

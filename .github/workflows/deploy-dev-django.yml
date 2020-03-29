@@ -113,7 +113,7 @@ jobs:
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: byfs-dev-django
-          cluster: byfs
+          cluster: byfs-develop
           wait-for-service-stability: true
 
       - name: Login to AWS ECR 
