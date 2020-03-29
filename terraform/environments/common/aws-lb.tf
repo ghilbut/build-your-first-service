@@ -1,5 +1,3 @@
-/***************************************************************
-* use when apply '#13 Make development environment to private network'
 resource aws_lb alb_public {
   name               = "alb-${var.srv_name}-public"
   internal           = false
@@ -14,7 +12,6 @@ resource aws_lb alb_public {
     local.tags, 
   )
 }
-***************************************************************/
 
 
 resource aws_lb alb_private {

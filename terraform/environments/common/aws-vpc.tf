@@ -19,8 +19,6 @@ data aws_subnet default {
 }
 
 
-/***************************************************************
-* use when apply '#13 Make development environment to private network'
 resource aws_security_group alb_public {
   name        = "${var.srv_name}-alb-public"
   description = "Allow all traffic"
@@ -49,22 +47,21 @@ resource aws_security_group alb_public {
 
   tags = merge(
     map(
-      "Name",  "sg-${var.srv_name}-alb-public",
+      "Name", "sg-${var.srv_name}-alb-public",
     ),
     local.tags, 
   )
 }
 
 
-
 locals {
   private_cidrs = [
+    "0.0.0.0/0",  # remove when apply '#13 Make development environment to private network'
     "10.0.0.0/8",
     "172.16.0.0/12",
     "192.168.0.0/16",
   ]
 }
-***************************************************************/
 
 
 resource aws_security_group alb_private {
@@ -72,7 +69,6 @@ resource aws_security_group alb_private {
   description = "Allow all traffic"
   vpc_id      = data.aws_vpc.default.id
 
-/*
   ingress {
     from_port   = 80
     to_port     = 80
@@ -85,33 +81,18 @@ resource aws_security_group alb_private {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = local.private_cidrs
-  }
-*/
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = -1
-    cidr_blocks     = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = merge(
     map(
-      "Name",  "sg-${var.srv_name}-alb-private",
+      "Name", "sg-${var.srv_name}-alb-private",
     ),
     local.tags, 
   )
@@ -123,32 +104,23 @@ resource aws_security_group private {
   description = "Allow all traffic"
   vpc_id      = data.aws_vpc.default.id
 
-/*
   ingress {
     from_port   = 0
     to_port     = 0
     protocol    = -1
     cidr_blocks = local.private_cidrs
   }
-*/
 
-  ingress {
+  egress {
     from_port   = 0
     to_port     = 0
     protocol    = -1
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = -1
-    cidr_blocks     = ["0.0.0.0/0"]
-  }
-
   tags = merge(
     map(
-      "Name",  "sg-${var.srv_name}-private",
+      "Name", "sg-${var.srv_name}-private",
     ),
     local.tags, 
   )
